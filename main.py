@@ -4,7 +4,6 @@ Created on Jul 21, 2017
 
 @author: Jason Zhu
 '''
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 DATASET_NAME = "COPY - Founder backgrounds & Operational - 7.5.2017.xlsx"
 DATASET_SHEETNAME = "Sheet1"
 DOWNLOAD_DIRECTORY = ""
