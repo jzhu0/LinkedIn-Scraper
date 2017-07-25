@@ -3,11 +3,16 @@ Created on Jul 21, 2017
 Scrapes through the Linkedin & Operational data set - navigates to each LinkedIn profile
 and downloads the profile as a PDF.
 
+It is recommended to run this program over smaller chunks of the data set each time, as
+LinkedIn may crash occasionally. In addition, a Premium LinkedIn account is required to
+allow for unlimited access.
+
 @author: Jason Zhu
 '''
 DATASET_NAME = "COPY - Linkedin & Operational Full List - 7.23.2017.xlsx"
 DATASET_SHEETNAME = "Sheet1"
 DOWNLOAD_DIRECTORY = "C:/Users/LinkedIn profiles"
+TOTAL = 0
 
 import time
 from bs4 import BeautifulSoup
@@ -15,6 +20,7 @@ import requests
 import openpyxl
 from selenium import webdriver
 import ctypes
+import getpass
 
 # Use ctypes to simulate keyboard presses - deal with the file Save As dialog box
 SendInput = ctypes.windll.user32.SendInput
@@ -59,7 +65,7 @@ def PressKey(hexKeyCode):
 # Extraction functions
 def sign_in(driver):
     email = raw_input("Enter login email: ")
-    pword = raw_input("Enter login password: ")
+    pword = getpass.getpass()
     driver.find_element_by_id("login-email").send_keys(email)
     driver.find_element_by_id("login-password").send_keys(pword)
     driver.find_element_by_id("login-submit").click()
@@ -100,16 +106,17 @@ for row in BgOpDataSheet.iter_rows():
     if (str(row[0].value) == "Project ID"):   # skip the first row
         continue
     
-    if (row[0].value <= 300):   # Min row
-        continue
-    if (row[0].value > 400):   # Max row
-        break
+#    if (row[0].value <= 1100):   # Min row
+#        continue
+#    if (row[0].value > 1300):   # Max row
+#        break
     
     if not (str(row[2].value) == "None" or str(row[2].value) == "" or str(row[2].value) == "Private profile"):   # skip rows without a link
         links[str(row[1].value)] = str(row[2].value)
         ids[str(row[1].value)] = row[0].value
+        TOTAL += 1
         print "Loaded pID #" + str(row[0].value) + ": " + str(row[1].value) + " " + str(row[2].value)
-print "    Data set successfully loaded"
+print "    Data set successfully loaded with " + str(TOTAL) + " projects"
 
 # test with smaller links dict:
 #print "Using hard-coded data set."
@@ -132,16 +139,17 @@ time.sleep(1.0)
 
 for name, pURL in links.iteritems():
     pID = ids[name]
-    print "Processing pID #" + str(pID) + ": " + name
+    print "Processing pID #" + str(pID) + ": " + name + ", " + str(TOTAL) + " remaining"
     req = requests.get(pURL)
     data = BeautifulSoup(req.content, "html.parser")
     time.sleep(0.5)
     
     driver.get(pURL)
     download_profile(driver)
-    time.sleep(2.0)
+    time.sleep(3.0)
     set_download_name(pID)
     time.sleep(1.0)
+    TOTAL -= 1
 
 print "    All data successfully parsed."
 driver.quit()
