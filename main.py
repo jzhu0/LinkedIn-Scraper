@@ -4,7 +4,7 @@ Created on Jul 21, 2017
 
 @author: Jason Zhu
 '''
-DATASET_NAME = "COPY - Founder backgrounds & Operational - 7.5.2017.xlsx"
+DATASET_NAME = "COPY - Linkedin & Operational Full List - 7.23.2017.xlsx"
 DATASET_SHEETNAME = "Sheet1"
 DOWNLOAD_DIRECTORY = "C:/Users/LinkedIn profiles"
 LINKEDIN_EMAIL = "j888230@mvrht.net"
@@ -16,7 +16,6 @@ import requests
 import openpyxl
 from selenium import webdriver
 import ctypes
-from selenium.webdriver.common.keys import Keys
 
 # Use ctypes to simulate keyboard presses - deal with the file Save As dialog box
 SendInput = ctypes.windll.user32.SendInput
@@ -67,17 +66,24 @@ def sign_in(driver):
 def download_profile(driver):
     driver.execute_script("window.scrollTo(0, 0);")
     time.sleep(0.5)
+    driver.execute_script("window.scrollTo(0, 0);")
+    time.sleep(0.5)
     driver.find_element_by_class_name("pv-top-card-section__overflow-wrapper").click()
     driver.find_element_by_class_name("save-to-pdf").click()
 
-def set_download_name(driver, pID):
+def set_download_name(pID):
+    time.sleep(0.1)
     PressKey(0x24)   # HOME button
     # iterate over digits in pID, press each
     for c in map(int, str(pID)):
         code = 0x30 + c
+        time.sleep(0.1)
         PressKey(code)
+    time.sleep(0.1)
     PressKey(0xBD)   # - button
+    time.sleep(0.1)
     PressKey(0x0D)   # ENTER button
+    time.sleep(0.1)
     print "  ...Done with #" + str(pID)
 
 print "Loading data set " + DATASET_NAME + "..."
@@ -93,15 +99,15 @@ for row in BgOpDataSheet.iter_rows():
     if (str(row[0].value) == "Project ID"):   # skip the first row
         continue
     
-    if (row[0].value < 0):   # Skip completed rows
-        continue
+#    if (row[0].value < 0):   # Min row
+#        continue
+    if (row[0].value > 50):   # Max row
+        break
     
-    if not (str(row[2].value) == "None" or str(row[2].value) == ""):   # skip rows without a link
+    if not (str(row[2].value) == "None" or str(row[2].value) == "" or str(row[2].value) == "Private profile"):   # skip rows without a link
         links[str(row[1].value)] = str(row[2].value)
         ids[str(row[1].value)] = row[0].value
         print "Loaded pID #" + str(row[0].value) + ": " + str(row[1].value) + " " + str(row[2].value)
-    if (row[0].value > 30):   # test loading a few rows
-        break
 print "    Data set successfully loaded"
 
 # test with smaller links dict:
@@ -132,7 +138,8 @@ for name, pURL in links.iteritems():
     driver.get(pURL)
     download_profile(driver)
     time.sleep(2.0)
-    set_download_name(driver, pID)
-    time.sleep(0.5)
+    set_download_name(pID)
+    time.sleep(1.0)
 
 print "    All data successfully parsed."
+driver.quit()
