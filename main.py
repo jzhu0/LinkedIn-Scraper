@@ -1,14 +1,13 @@
 '''
 Created on Jul 21, 2017
-
+Scrapes through the Linkedin & Operational data set - navigates to each LinkedIn profile
+and downloads the profile as a PDF.
 
 @author: Jason Zhu
 '''
 DATASET_NAME = "COPY - Linkedin & Operational Full List - 7.23.2017.xlsx"
 DATASET_SHEETNAME = "Sheet1"
 DOWNLOAD_DIRECTORY = "C:/Users/LinkedIn profiles"
-LINKEDIN_EMAIL = "j888230@mvrht.net"
-LINKEDIN_PASS = "j888230@"   # 10minutemail generated
 
 import time
 from bs4 import BeautifulSoup
@@ -59,8 +58,10 @@ def PressKey(hexKeyCode):
 
 # Extraction functions
 def sign_in(driver):
-    driver.find_element_by_id("login-email").send_keys(LINKEDIN_EMAIL)
-    driver.find_element_by_id("login-password").send_keys(LINKEDIN_PASS)
+    email = raw_input("Enter login email: ")
+    pword = raw_input("Enter login password: ")
+    driver.find_element_by_id("login-email").send_keys(email)
+    driver.find_element_by_id("login-password").send_keys(pword)
     driver.find_element_by_id("login-submit").click()
 
 def download_profile(driver):
@@ -99,9 +100,9 @@ for row in BgOpDataSheet.iter_rows():
     if (str(row[0].value) == "Project ID"):   # skip the first row
         continue
     
-#    if (row[0].value < 0):   # Min row
-#        continue
-    if (row[0].value > 50):   # Max row
+    if (row[0].value <= 300):   # Min row
+        continue
+    if (row[0].value > 400):   # Max row
         break
     
     if not (str(row[2].value) == "None" or str(row[2].value) == "" or str(row[2].value) == "Private profile"):   # skip rows without a link
@@ -119,6 +120,7 @@ print "    Data set successfully loaded"
 
 # Set download location preferences
 preferences = {"download.default_directory" : DOWNLOAD_DIRECTORY}
+    # This doesn't actually work. Downloads go to Documents folder
 options = webdriver.ChromeOptions()
 options.add_experimental_option("prefs", preferences)
 driver = webdriver.Chrome(chrome_options = options)
