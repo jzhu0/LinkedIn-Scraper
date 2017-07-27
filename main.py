@@ -2,10 +2,10 @@
 Created on Jul 21, 2017
 Scrapes through the Linkedin & Operational data set - navigates to each LinkedIn profile
 and downloads the profile as a PDF.
+Files are named as "{profile ID}-{name}Profile.pdf", saved to the default 'My Documents' folder.
 
 It is recommended to run this program over smaller chunks of the data set each time, as
-LinkedIn may crash occasionally. In addition, a Premium LinkedIn account is required to
-allow for unlimited access.
+LinkedIn may crash occasionally. A Premium LinkedIn account is required to allow for unlimited access.
 
 @author: Jason Zhu
 '''
@@ -127,7 +127,7 @@ print "    Data set successfully loaded with " + str(TOTAL) + " projects"
 
 # Set download location preferences
 preferences = {"download.default_directory" : DOWNLOAD_DIRECTORY}
-    # This doesn't actually work. Downloads go to Documents folder
+    # This doesn't actually work. Downloads go to Documents folder.
 options = webdriver.ChromeOptions()
 options.add_experimental_option("prefs", preferences)
 driver = webdriver.Chrome(chrome_options = options)
